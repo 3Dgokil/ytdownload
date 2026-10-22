@@ -14,7 +14,7 @@ st.set_page_config(
 st.title("🎵 YouTube to MP3 Converter")
 st.caption("Unduh audio YouTube langsung ke format MP3 dan simpan ke folder internal/POP_LAWAS.")
 
-# Membuat folder internal/POP_LAWAS jika belum ada
+# Membuat folder tujuan jika belum tersedia
 TARGET_DIR = os.path.join("internal", "POP_LAWAS")
 os.makedirs(TARGET_DIR, exist_ok=True)
 
@@ -35,6 +35,15 @@ if st.button("Proses & Konversi", type="primary"):
                 ydl_opts = {
                     "format": "bestaudio/best",
                     "outtmpl": os.path.join(temp_dir, "%(title)s.%(ext)s"),
+                    # Menyamarkan klien ke Android/iOS untuk mencegah HTTP 403 di IP cloud
+                    "extractor_args": {
+                        "youtube": {
+                            "player_client": ["android", "ios"]
+                        }
+                    },
+                    "http_headers": {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    },
                     "postprocessors": [
                         {
                             "key": "FFmpegExtractAudio",
@@ -74,7 +83,7 @@ if st.button("Proses & Konversi", type="primary"):
                     with open(source_file, "rb") as f:
                         mp3_bytes = f.read()
 
-                    status_box.success(f"Berhasil! File tersimpan di: {internal_save_path}")
+                    status_box.success(f"Berhasil! File tersimpan di server: {internal_save_path}")
 
                     if thumbnail_url:
                         st.image(thumbnail_url, caption=video_title, use_container_width=True)
